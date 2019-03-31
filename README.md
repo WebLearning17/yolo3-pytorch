@@ -1,135 +1,95 @@
-### pytorch-yolo3
-Convert https://pjreddie.com/darknet/yolo/ into pytorch. Currently this repository works on Python 3.6.1  + pytorch 0.3.1.post3
+# PyTorch-YOLOv3
+Minimal implementation of YOLOv3 in PyTorch.
 
-This python3 version is merged from https://github.com/Swall0w/pytorch-yolo3
+## Table of Contents
+- [PyTorch-YOLOv3](#pytorch-yolov3)
+  * [Table of Contents](#table-of-contents)
+  * [Paper](#paper)
+  * [Installation](#installation)
+  * [Inference](#inference)
+  * [Test](#test)
+  * [Train](#train)
+  * [Credit](#credit)
 
-### Todos
-- [x] make detect.py works
+## Paper
+### YOLOv3: An Incremental Improvement
+_Joseph Redmon, Ali Farhadi_ <br>
 
----
-#### Detection Using A Pre-Trained Model
-```
-wget https://pjreddie.com/media/files/yolov3.weights
-python detect.py cfg/yolov3.cfg yolov3.weights data/dog.jpg
-```
-You will see some output like this:
-```
-layer     filters    size              input                output
-    0 conv     32  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  32
-    1 conv     64  3 x 3 / 2   416 x 416 x  32   ->   208 x 208 x  64
-    2 conv     32  1 x 1 / 1   208 x 208 x  64   ->   208 x 208 x  32
-    3 conv     64  3 x 3 / 1   208 x 208 x  32   ->   208 x 208 x  64
-    4 shortcut 1
-    5 conv    128  3 x 3 / 2   208 x 208 x  64   ->   104 x 104 x 128
-    6 conv     64  1 x 1 / 1   104 x 104 x 128   ->   104 x 104 x  64
-    7 conv    128  3 x 3 / 1   104 x 104 x  64   ->   104 x 104 x 128
-    8 shortcut 5
-    9 conv     64  1 x 1 / 1   104 x 104 x 128   ->   104 x 104 x  64
-   10 conv    128  3 x 3 / 1   104 x 104 x  64   ->   104 x 104 x 128
-   11 shortcut 8
-   12 conv    256  3 x 3 / 2   104 x 104 x 128   ->    52 x  52 x 256
-   13 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   14 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   15 shortcut 12
-   16 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   17 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   18 shortcut 15
-   19 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   20 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   21 shortcut 18
-   22 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   23 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   24 shortcut 21
-   25 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   26 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   27 shortcut 24
-   28 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   29 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   30 shortcut 27
-   31 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   32 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   33 shortcut 30
-   34 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-   35 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-   36 shortcut 33
-   37 conv    512  3 x 3 / 2    52 x  52 x 256   ->    26 x  26 x 512
-   38 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   39 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   40 shortcut 37
-   41 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   42 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   43 shortcut 40
-   44 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   45 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   46 shortcut 43
-   47 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   48 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   49 shortcut 46
-   50 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   51 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   52 shortcut 49
-   53 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   54 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   55 shortcut 52
-   56 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   57 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   58 shortcut 55
-   59 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   60 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   61 shortcut 58
-   62 conv   1024  3 x 3 / 2    26 x  26 x 512   ->    13 x  13 x1024
-   63 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   64 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   65 shortcut 62
-   66 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   67 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   68 shortcut 65
-   69 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   70 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   71 shortcut 68
-   72 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   73 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   74 shortcut 71
-   75 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   76 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   77 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   78 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   79 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512
-   80 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024
-   81 conv    255  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 255
-   82 detection
-   83 route  79
-   84 conv    256  1 x 1 / 1    13 x  13 x 512   ->    13 x  13 x 256
-   85 upsample           * 2    13 x  13 x 256   ->    26 x  26 x 256
-   86 route  85 61
-   87 conv    256  1 x 1 / 1    26 x  26 x 768   ->    26 x  26 x 256
-   88 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   89 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   90 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   91 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256
-   92 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512
-   93 conv    255  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 255
-   94 detection
-   95 route  91
-   96 conv    128  1 x 1 / 1    26 x  26 x 256   ->    26 x  26 x 128
-   97 upsample           * 2    26 x  26 x 128   ->    52 x  52 x 128
-   98 route  97 36
-   99 conv    128  1 x 1 / 1    52 x  52 x 384   ->    52 x  52 x 128
-  100 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-  101 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-  102 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-  103 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128
-  104 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256
-  105 conv    255  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 255
-  106 detection
-Loading weights from yolov3.weights... Done!
-data/dog.jpg: Predicted in 1.405360 seconds.
-dog: 0.999996
-truck: 0.995232
-bicycle: 0.999972
-save plot results to predictions.jpg
-```
-![predictions](data/predictions.jpg)
+**Abstract** <br>
+We present some updates to YOLO! We made a bunch
+of little design changes to make it better. We also trained
+this new network that’s pretty swell. It’s a little bigger than
+last time but more accurate. It’s still fast though, don’t
+worry. At 320 × 320 YOLOv3 runs in 22 ms at 28.2 mAP,
+as accurate as SSD but three times faster. When we look
+at the old .5 IOU mAP detection metric YOLOv3 is quite
+good. It achieves 57.9 AP50 in 51 ms on a Titan X, compared
+to 57.5 AP50 in 198 ms by RetinaNet, similar performance
+but 3.8× faster. As always, all the code is online at
+https://pjreddie.com/yolo/.
 
-### Train on COCO
-comming soon ...
+[[Paper]](https://pjreddie.com/media/files/papers/YOLOv3.pdf) [[Original Implementation]](https://github.com/pjreddie/darknet)
+
+## Installation
+    $ git clone https://github.com/eriklindernoren/PyTorch-YOLOv3
+    $ cd PyTorch-YOLOv3/
+    $ sudo pip3 install -r requirements.txt
+
+##### Download pretrained weights
+    $ cd weights/
+    $ bash download_weights.sh
+
+##### Download COCO
+    $ cd data/
+    $ bash get_coco_dataset.sh
+
+## Inference
+Uses pretrained weights to make predictions on images. Below table displays the inference times when using as inputs images scaled to 256x256. The ResNet backbone measurements are taken from the YOLOv3 paper. The Darknet-53 measurement marked shows the inference time of this implementation on my 1080ti card.
+
+| Backbone                | GPU      | FPS      |
+| ----------------------- |:--------:|:--------:|
+| ResNet-101              | Titan X  | 53       |
+| ResNet-152              | Titan X  | 37       |
+| Darknet-53 (paper)      | Titan X  | 76       |
+| Darknet-53 (this impl.) | 1080ti   | 74       |
+
+    $ python3 detect.py --image_folder /data/samples
+
+<p align="center"><img src="assets/giraffe.png" width="480"\></p>
+<p align="center"><img src="assets/dog.png" width="480"\></p>
+<p align="center"><img src="assets/traffic.png" width="480"\></p>
+<p align="center"><img src="assets/messi.png" width="480"\></p>
+
+## Test
+Evaluates the model on COCO test.
+
+    $ python3 test.py --weights_path weights/yolov3.weights
+
+| Model                   | mAP (min. 50 IoU) |
+| ----------------------- |:----------------:|
+| YOLOv3 (paper)          | 57.9             |
+| YOLOv3 (this impl.)     | 58.2             |
+
+## Train
+Data augmentation as well as additional training tricks remains to be implemented. PRs are welcomed!
+```
+    train.py [-h] [--epochs EPOCHS] [--image_folder IMAGE_FOLDER]
+                [--batch_size BATCH_SIZE]
+                [--model_config_path MODEL_CONFIG_PATH]
+                [--data_config_path DATA_CONFIG_PATH]
+                [--weights_path WEIGHTS_PATH] [--class_path CLASS_PATH]
+                [--conf_thres CONF_THRES] [--nms_thres NMS_THRES]
+                [--n_cpu N_CPU] [--img_size IMG_SIZE]
+                [--checkpoint_interval CHECKPOINT_INTERVAL]
+                [--checkpoint_dir CHECKPOINT_DIR]
+```
+
+## Credit
+```
+@article{yolov3,
+  title={YOLOv3: An Incremental Improvement},
+  author={Redmon, Joseph and Farhadi, Ali},
+  journal = {arXiv},
+  year={2018}
+}
+```
